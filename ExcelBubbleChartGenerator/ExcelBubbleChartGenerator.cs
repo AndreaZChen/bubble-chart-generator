@@ -12,7 +12,7 @@ namespace ExcelBubbleChartGenerator
         private const double DataLabelDistanceMargin = 5;
         private const double RotationIncrement = Math.PI / 8;
 
-        private const double DefaultBubbleScale = 1;
+        private const double DefaultBubbleScale = 0.5;
 
         private const double HeuristicExtraWidth = 267;
         private const double HeuristicExtraHeight = 168;
@@ -26,6 +26,10 @@ namespace ExcelBubbleChartGenerator
         private const float RevenueTitleLength = 100;
         private const float RevenueTextLabelLength = 55;
         private const float RevenueTextLabelHeight = 20;
+
+        private const double BubbleSizeIncrement = 1;
+        private const double RevenueIncrement = 200;
+        private readonly double[] RevenueCategoryMins = Enumerable.Range(0, 5).Select(x => x * RevenueIncrement).ToArray();
 
         private readonly Dictionary<int, string> _projectTypeNames = new Dictionary<int, string>
         {
@@ -126,6 +130,7 @@ namespace ExcelBubbleChartGenerator
             bubbleChart.ChartType = Excel.XlChartType.xlBubble3DEffect;
 
             bubbleChart.ChartGroups(1).BubbleScale = Clamp(100 * bubbleScaleFactor * DefaultBubbleScale, 0, 300);
+            bubbleChart.ChartGroups(1).SizeRepresents = Excel.XlSizeRepresents.xlSizeIsWidth;
 
             var xAxis = (Excel.Axis) bubbleChart.Axes(Excel.XlAxisType.xlCategory);
             xAxis.HasTitle = true;
@@ -187,8 +192,8 @@ namespace ExcelBubbleChartGenerator
             xAxis.MinimumScale = (Math.Floor(minXValue / 100) - 1) * 100;
             xAxis.MaximumScale = (Math.Ceiling(maxXValue / 100) + 1) * 100;
             var yAxis = (Excel.Axis)bubbleChart.Axes(Excel.XlAxisType.xlValue);
-            yAxis.MinimumScale = (Math.Floor(minYValue * 10) - 1) / 10;
-            yAxis.MaximumScale = (Math.Ceiling(maxYValue * 10) + 1) / 10;
+            yAxis.MinimumScale = (Math.Floor(minYValue * 10) - 10) / 10;
+            yAxis.MaximumScale = (Math.Ceiling(maxYValue * 10) + 10) / 10;
         }
 
         private void AddLegendAndClearDummySeriesNames(Excel.Chart chart)
@@ -340,7 +345,14 @@ namespace ExcelBubbleChartGenerator
 
         private double GetBubbleSizeFromRevenue(double revenue)
         {
-            return Math.Max(revenue / 100, 0);
+            for (int i = 0; i < RevenueCategoryMins.Length; i++)
+            {
+                if (revenue < RevenueCategoryMins[i])
+                {
+                    return (i * BubbleSizeIncrement);
+                }
+            }
+            return (RevenueCategoryMins.Length * BubbleSizeIncrement);
         }
 
         private Rectangle FindUnoccupiedRectangleNearCircle(double neededWidth, double neededHeight, List<Rectangle> occupiedRectangles, List<Circle> occupiedCircles, Circle bubblePoint, out double[] leaderLineAttachingCoordinates)
@@ -567,10 +579,8 @@ namespace ExcelBubbleChartGenerator
 
         private void DrawBubbleLegend(Excel.Chart chart)
         {
-            var revenues = new double[] {200, 400, 600, 800, 1000};
-            const double revenueIncrement = 200;
-            var zeroArray = revenues.Select(x => 0.0).ToArray();
-            var bubbleSizes = revenues.Select(x => GetBubbleSizeFromRevenue(x - revenueIncrement / 2)).ToArray();
+            var zeroArray = RevenueCategoryMins.Select(x => 0.0).ToArray();
+            var bubbleSizes = RevenueCategoryMins.Select(x => GetBubbleSizeFromRevenue(x + RevenueIncrement / 2)).ToArray();
 
             Excel.Series dummyBubbleSeries = chart.SeriesCollection().NewSeries();
             dummyBubbleSeries.XValues = zeroArray;
@@ -613,15 +623,15 @@ namespace ExcelBubbleChartGenerator
                 var revenueText = string.Empty;
                 if (i == 0)
                 {
-                    revenueText = "<" + revenues[i];
+                    revenueText = "<" + RevenueCategoryMins[1];
                 }
-                else if (i == revenues.Length - 1)
+                else if (i == RevenueCategoryMins.Length - 1)
                 {
-                    revenueText = ">" + revenues[i-1];
+                    revenueText = ">" + RevenueCategoryMins[i];
                 }
                 else
                 {
-                    revenueText = revenues[i - 1] + "-" + revenues[i];
+                    revenueText = RevenueCategoryMins[i] + "-" + RevenueCategoryMins[i+1];
                 }
 
                 label.TextFrame.Characters().Text = revenueText;

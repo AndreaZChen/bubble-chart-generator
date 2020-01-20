@@ -54,14 +54,15 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Title -->
@@ -72,8 +73,16 @@
             Välkommen till bubbeldiagram-skaparen! Skicka in fakturasammandraget som Excel-fil, så skapas ett automatiskt bubbeldiagram.
         </TextBlock>
 
+        <TextBlock Grid.Row="2" Width="300" TextWrapping="WrapWithOverflow" TextAlignment="Center" Margin="20">
+            <Run FontWeight="Bold">OBS!</Run>
+            <Run>Kom ihåg att Excel-filen måste vara korrekt formaterad. Programmet förväntar sig en Excel-fil där datat finns på</Run>
+            <Run FontWeight="Bold">blad 2</Run>
+            <Run>i Excel-arbetsboken. I bladet ska datat presenteras i kolumnerna "Projektnamn", "Medeltimtaxa", "TG2", "omsättning", och "kundtyp".
+                TG2 skall anges i procent. Kundtyp ska anges som något av alternativen "lösning", "resurs", eller "indirekt".</Run>
+        </TextBlock>
+
         <!--Width and height inputs-->
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="3">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -98,7 +107,7 @@
         </Grid>
 
         <!--Select input-->
-        <Grid Grid.Row="3" Width="350">
+        <Grid Grid.Row="4" Width="350">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <TextBlock>Läs in data från Excel-fil:</TextBlock>
                 <TextBox Height="20" Width="150" Margin="5, 0, 0, 0" Text="{Binding SourceFilePath}" IsEnabled="{Binding IsAppEnabled}"/>
@@ -107,7 +116,7 @@
         </Grid>
 
         <!--Select output-->
-        <Grid Grid.Row="4" Width="350">
+        <Grid Grid.Row="5" Width="350">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <TextBlock>Spara diagrammet till:</TextBlock>
                 <TextBox Height="20" Width="150" Margin="5, 0, 0, 0" Text="{Binding DestinationFilePath}" IsEnabled="{Binding IsAppEnabled}"/>
@@ -115,21 +124,21 @@
             </StackPanel>
         </Grid>
 
-        <Grid Grid.Row="5">
+        <Grid Grid.Row="6">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Height="20" Width="90" Command="{Binding GenerateBubbleChartCommand}" IsEnabled="{Binding IsAppEnabled}">Skapa diagram</Button>
             </StackPanel>
         </Grid>
 
         <!--Progress bar-->
-        <Grid Grid.Row="6">
+        <Grid Grid.Row="7">
             <Border Style="{StaticResource ProgressBar}" BorderBrush="Black" BorderThickness="1" Height="15" Width="475">
                 <Rectangle Fill="LimeGreen" HorizontalAlignment="Left" Width ="{Binding StageFraction, Converter={StaticResource MultiplicationConverter}, ConverterParameter=475}"/>
             </Border>
         </Grid>
 
         <!--Status message-->
-        <StackPanel Grid.Row="7" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <StackPanel Grid.Row="8" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
             <TextBlock Text="{Binding StatusMessage}" FontSize="20"/>
             <TextBlock Style="{StaticResource AnimatedEllipsis}" FontSize="20" Width="30">
                 <TextBlock.Triggers>
